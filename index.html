@@ -1,0 +1,185 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Signal Corbeau</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap">
+<style>
+/* Layout: HUD néon — en-tête glitch, panneaux biseautés à coins de visée, grille en perspective au sol */
+:root{
+  --bg:#05060b; --panel:#0a0e17; --panel2:#0d1320; --line:#1c2638; --fg:#e8f3ff; --dim:#6f82a0;
+  --y:#fcee0a; --c:#00f0ff; --m:#ff2a6d; --g:#39ff88;
+  --f-disp:"Orbitron","Arial Black",sans-serif;
+  --f-ui:"Rajdhani","Arial Narrow",sans-serif;
+  --f-mono:"Share Tech Mono",ui-monospace,"Courier New",monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-ui);font-size:17px;line-height:1.5;font-weight:500;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 80px;overflow-x:hidden;
+  background-image:radial-gradient(ellipse at 50% -20%,color-mix(in srgb,var(--acc) 22%,transparent),transparent 55%),radial-gradient(ellipse at 100% 100%,color-mix(in srgb,var(--acc2) 18%,transparent),transparent 50%)}
+body::before{content:"";position:fixed;left:-50%;right:-50%;bottom:-10%;height:55vh;z-index:-1;pointer-events:none;
+  background-image:linear-gradient(color-mix(in srgb,var(--acc2) 35%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--acc2) 35%,transparent) 1px,transparent 1px);
+  background-size:60px 60px;transform:perspective(400px) rotateX(62deg);transform-origin:bottom;mask-image:linear-gradient(to top,#000 10%,transparent 85%);-webkit-mask-image:linear-gradient(to top,#000 10%,transparent 85%);animation:grid 6s linear infinite}
+@keyframes grid{to{background-position:0 60px}}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px)}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:28px;padding-top:26px;position:relative}
+.topbar{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px 18px;font-family:var(--f-mono);font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:.12em;border-bottom:1px solid var(--line);padding-bottom:10px}
+.topbar .live{color:var(--acc)}
+.topbar .live::before{content:"";display:inline-block;width:8px;height:8px;background:var(--acc);margin-right:8px;box-shadow:0 0 10px var(--acc);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.15}}
+.hero{display:grid;gap:12px}
+.kicker{font-family:var(--f-mono);color:var(--acc2);letter-spacing:.3em;text-transform:uppercase;font-size:13px}
+.glitch{position:relative;margin:0;font-family:var(--f-disp);font-weight:900;font-size:clamp(38px,9vw,96px);line-height:.95;letter-spacing:.03em;text-transform:uppercase;color:var(--acc);text-shadow:0 0 22px color-mix(in srgb,var(--acc) 55%,transparent);text-wrap:balance}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;inset:0;pointer-events:none}
+.glitch::before{color:var(--c);transform:translate(-3px,0);clip-path:inset(0 0 60% 0);opacity:.8;animation:g1 3.2s infinite steps(1)}
+.glitch::after{color:var(--m);transform:translate(3px,0);clip-path:inset(55% 0 0 0);opacity:.8;animation:g2 2.7s infinite steps(1)}
+@keyframes g1{0%,88%{transform:translate(-3px,0);clip-path:inset(0 0 60% 0)}90%{transform:translate(-9px,-2px);clip-path:inset(10% 0 70% 0)}94%{transform:translate(6px,1px);clip-path:inset(40% 0 30% 0)}}
+@keyframes g2{0%,85%{transform:translate(3px,0);clip-path:inset(55% 0 0 0)}88%{transform:translate(10px,2px);clip-path:inset(70% 0 5% 0)}92%{transform:translate(-6px,0);clip-path:inset(30% 0 50% 0)}}
+.lede{margin:0;max-width:62ch;color:var(--dim);font-size:18px}
+.hud{display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;font-family:var(--f-mono);font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em}
+.hud b{color:var(--fg);font-weight:400}
+.bars{display:flex;gap:5px}.bars i{width:34px;height:8px;background:var(--line);transform:skewX(-25deg)}
+.bars i.on{background:var(--acc);box-shadow:0 0 12px var(--acc)}
+.console{font-family:var(--f-mono);font-size:15px;color:var(--acc2);background:rgba(0,0,0,.55);border:1px solid var(--line);border-left:3px solid var(--acc2);padding:12px 16px;min-height:5em;white-space:pre-wrap}
+.console .who{color:var(--acc)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+@media (max-width:800px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.panel{position:relative;background:linear-gradient(160deg,var(--panel2),var(--panel));min-width:0;display:grid;align-content:start;
+  clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,22px 100%,0 calc(100% - 22px));border:1px solid var(--line)}
+.panel::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(var(--acc),var(--acc)) left top/18px 2px no-repeat,linear-gradient(var(--acc),var(--acc)) left top/2px 18px no-repeat,linear-gradient(var(--acc),var(--acc)) right bottom/18px 2px no-repeat,linear-gradient(var(--acc),var(--acc)) right bottom/2px 18px no-repeat;opacity:.9}
+.panel.done{border-color:var(--g)}
+.panel.done::before{background:linear-gradient(var(--g),var(--g)) left top/18px 2px no-repeat,linear-gradient(var(--g),var(--g)) left top/2px 18px no-repeat,linear-gradient(var(--g),var(--g)) right bottom/18px 2px no-repeat,linear-gradient(var(--g),var(--g)) right bottom/2px 18px no-repeat}
+.ph{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.25)}
+.ph strong{font-family:var(--f-disp);font-weight:700;font-size:14px;letter-spacing:.14em;text-transform:uppercase}
+.tag{font-family:var(--f-mono);font-size:12px;padding:2px 8px;color:#000;background:var(--acc);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.panel.done .tag{background:var(--g)}
+.pb{padding:18px;display:grid;gap:14px;min-width:0}
+.small{font-size:15px;color:var(--dim)}
+.mono{font-family:var(--f-mono)}
+.screen{font-family:var(--f-mono);background:#000;border:1px solid var(--line);padding:14px;font-size:18px;letter-spacing:.14em;color:var(--acc2);word-break:break-word;text-shadow:0 0 8px color-mix(in srgb,var(--acc2) 60%,transparent)}
+.quote{margin:0;border-left:2px solid var(--acc2);padding:4px 0 4px 14px;display:grid;gap:2px}
+.quote b{font-family:var(--f-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--acc2);font-weight:400}
+.quote.alt{border-color:var(--m)}.quote.alt b{color:var(--m)}
+.quote.sys{border-color:var(--dim)}.quote.sys b{color:var(--dim)}
+.quote p{margin:0;font-style:italic}
+form.answer{display:flex;gap:8px;flex-wrap:wrap}
+form.answer label{width:100%;font-family:var(--f-mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+input[type=text]{flex:1 1 170px;min-width:0;background:#000;border:1px solid var(--line);border-bottom:2px solid var(--acc);color:var(--acc);font-family:var(--f-mono);font-size:18px;padding:9px 12px;text-transform:uppercase;letter-spacing:.14em}
+input[type=text]:focus{outline:none;box-shadow:0 0 0 1px var(--acc),0 0 18px color-mix(in srgb,var(--acc) 40%,transparent)}
+.panel.done input{color:var(--g);border-bottom-color:var(--g)}
+button{font-family:var(--f-disp);font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;padding:11px 18px;border:0;background:var(--acc);color:#000;cursor:pointer;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px))}
+button:hover{filter:brightness(1.15);box-shadow:0 0 20px var(--acc)}
+button:focus-visible{outline:2px solid var(--c);outline-offset:3px}
+button:disabled{background:var(--line);color:var(--dim);cursor:default;box-shadow:none}
+button.ghost{background:transparent;color:var(--acc2);box-shadow:inset 0 0 0 1px var(--acc2)}
+.msg{font-family:var(--f-mono);font-size:14px;min-height:1.3em}.msg.err{color:var(--m)}.msg.ok{color:var(--g)}
+.hint{border:1px dashed var(--line);padding:8px 12px;font-size:15px}
+.hint summary{cursor:pointer;color:var(--acc2);font-family:var(--f-mono);letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+.hint p{margin:8px 0 0}
+.ref{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:4px;font-family:var(--f-mono);font-size:13px;background:#000;border:1px solid var(--line);padding:8px;margin-top:8px}
+.ref b{color:var(--acc);margin-right:5px;font-weight:400}
+.vault{position:relative;text-align:center;display:grid;gap:10px;padding:28px 18px;border:1px solid var(--acc);background:rgba(0,0,0,.6);clip-path:polygon(0 0,calc(100% - 26px) 0,100% 26px,100% 100%,26px 100%,0 calc(100% - 26px))}
+.vault h2{margin:0;font-family:var(--f-disp);font-weight:700;letter-spacing:.3em;text-transform:uppercase;font-size:14px;color:var(--acc2)}
+.frag{font-family:var(--f-disp);font-weight:900;font-size:clamp(34px,9vw,70px);letter-spacing:.12em;color:var(--acc);text-shadow:0 0 26px var(--acc)}
+.frag.locked{color:var(--line);text-shadow:none}
+footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-family:var(--f-mono);font-size:12px;color:var(--dim);border-top:1px solid var(--line);padding-top:12px;text-transform:uppercase;letter-spacing:.1em}
+footer button{background:none;color:var(--dim);padding:0;font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;text-decoration:underline;clip-path:none}
+footer button:hover{box-shadow:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+:root{--c:#2fa8ff;--m:#b347ff;--y:#4d8dff;--bg:#07041a;--panel:#0e0a26;--panel2:#150f33;--line:#2c2259;--dim:#9086c4;--acc:#b347ff;--acc2:#2fa8ff}
+canvas{width:100%;display:block;background:#000;border:1px solid var(--line)}
+.lamprow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.lamp{width:22px;height:22px;border-radius:50%;background:#16202e;border:1px solid var(--line);flex:none}
+.lamp.on{background:var(--c);box-shadow:0 0 22px var(--c),0 0 44px var(--c)}
+</style>
+
+<div class="wrap">
+  <div class="topbar"><span class="live">Écoute en cours</span><span>Relais clandestin · Aile Corbeau</span><span>Canal Voss / interne</span></div>
+
+  <header class="hero">
+    <span class="kicker">// Transmissions interceptées</span>
+    <h1 class="glitch" data-text="Signal Corbeau">Signal Corbeau</h1>
+    <p class="lede">Deux transmissions ont été captées sur le réseau privé du Dr Voss. Elles protègent le second fragment de la clé Oméga.</p>
+    <div class="hud"><span>Signaux décodés : <b id="count">0/2</b></span><div class="bars"><i></i><i></i></div></div>
+  </header>
+
+  <section class="grid2">
+    <article class="panel" data-i="0">
+      <div class="ph"><strong>Balise lumineuse</strong><span class="tag">Signal 01</span></div>
+      <div class="pb">
+        <p class="small">Une diode clignote sur le toit du labo, toujours la même séquence. Trait court = point, trait long = tiret, grand espace = lettre suivante.</p>
+        <canvas id="tape" height="70" aria-label="Bande de signal en impulsions courtes et longues"></canvas>
+        <div class="lamprow"><div class="lamp" id="lamp"></div><button class="ghost" type="button" id="play">Rejouer le signal</button></div>
+        <details class="hint" open><summary>Alphabet morse</summary><div class="ref"><span><b>A</b>·–</span><span><b>B</b>–···</span><span><b>C</b>–·–·</span><span><b>D</b>–··</span><span><b>E</b>·</span><span><b>F</b>··–·</span><span><b>G</b>––·</span><span><b>H</b>····</span><span><b>I</b>··</span><span><b>J</b>·–––</span><span><b>K</b>–·–</span><span><b>L</b>·–··</span><span><b>M</b>––</span><span><b>N</b>–·</span><span><b>O</b>–––</span><span><b>P</b>·––·</span><span><b>Q</b>––·–</span><span><b>R</b>·–·</span><span><b>S</b>···</span><span><b>T</b>–</span><span><b>U</b>··–</span><span><b>V</b>···–</span><span><b>W</b>·––</span><span><b>X</b>–··–</span><span><b>Y</b>–·––</span><span><b>Z</b>––··</span></div></details>
+        <form class="answer"><label for="a0">Mot transmis</label><input type="text" id="a0" autocomplete="off" spellcheck="false"><button>Valider</button></form>
+        <div class="msg" role="status"></div>
+      </div>
+    </article>
+
+    <article class="panel" data-i="2">
+      <div class="ph"><strong>Journaux vocaux</strong><span class="tag">Signal 02</span></div>
+      <div class="pb">
+        <div class="quote"><b>Log A · Dr A. Voss</b><p>« Injection du neuro-modèle à 02:15, heure du serveur. »</p></div>
+        <div class="quote alt"><b>Log B · Technicienne Hale</b><p>« Elle a ouvert les yeux 47 minutes après l'injection. Elle ne répondait plus à son prénom. »</p></div>
+        <div class="quote sys"><b>Log C · Maintenance</b><p>« L'horloge du serveur avance de 20 minutes sur l'heure réelle. »</p></div>
+        <details class="hint"><summary>Besoin d'un indice ?</summary><p>Retirez d'abord les 20 minutes d'avance à l'heure de l'injection, puis ajoutez les 47 minutes.</p></details>
+        <form class="answer"><label for="a2">Heure réelle du réveil (HH:MM)</label><input type="text" id="a2" autocomplete="off" spellcheck="false" inputmode="numeric"><button>Valider</button></form>
+        <div class="msg" role="status"></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="vault" aria-live="polite">
+    <h2>Fragment Bêta</h2>
+    <p class="small" id="vaultTxt">Signal incomplet. Décodez les deux transmissions.</p>
+    <div class="frag locked" id="frag">▮▮-▮▮▮▮</div>
+    <p class="small" id="vaultNote" hidden>Notez ce fragment. Avec le fragment Alpha, il ouvre le terminal Oméga.</p>
+  </section>
+
+  <footer><span>Relais Corbeau · Fréquences surveillées</span><button id="reset" type="button">Effacer ma session</button></footer>
+</div>
+
+<script>
+const H={0:"3961d9a358046d0db42de0d42a3053a4e8242d872d6e648ba633691735cb55e1",2:"8915df181f1319eff8e4e22557a0e87367edcff3d4b340008e273838ef2f6dd8"};
+const REQ=[0,2],CIPHER="H6/JqYRaGw==",SITE="2",KEY="voss-signal-v3";
+const norm=s=>s.toUpperCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Z0-9]/g,"");
+const enc=new TextEncoder();
+async function sha(s){return new Uint8Array(await crypto.subtle.digest("SHA-256",enc.encode(s)))}
+const hex=a=>[...a].map(x=>x.toString(16).padStart(2,"0")).join("");
+async function decrypt(key,b64){const d=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));const ks=new Uint8Array(d.length+32);let i=0,n=0;while(n<d.length){ks.set(await sha(key+"#"+i++),n);n+=32}return new TextDecoder().decode(d.map((x,j)=>x^ks[j]))}
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let solved={};
+try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&typeof s==="object")solved=s}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(solved))}catch(e){}};
+async function typeLines(el,lines){for(const [w,t] of lines){const l=document.createElement("div");l.innerHTML=`<span class="who">[${w}]</span> `;el.append(l);if(RM){l.append(t);continue}for(const ch of t){l.append(ch);await new Promise(r=>setTimeout(r,20))}await new Promise(r=>setTimeout(r,300))}}
+function render(){const n=REQ.filter(i=>solved[i]).length;document.getElementById("count").textContent=n+"/"+REQ.length;
+  document.querySelectorAll(".bars i").forEach((x,i)=>x.classList.toggle("on",i<n));
+  document.querySelectorAll(".panel[data-i]").forEach(p=>{const i=+p.dataset.i;if(!solved[i])return;p.classList.add("done");p.querySelector(".tag").textContent="Forcé";
+    const inp=p.querySelector("form input");inp.value=solved[i];inp.disabled=true;p.querySelector("form button").disabled=true;const m=p.querySelector(".msg");m.className="msg ok";m.textContent="> accès accordé"});
+  if(n===REQ.length)unlock()}
+async function unlock(){const code=await decrypt(REQ.map(i=>solved[i]).join("|"),CIPHER),f=document.getElementById("frag");
+  f.textContent=code;f.classList.remove("locked");document.getElementById("vaultTxt").textContent="Fragment extrait.";document.getElementById("vaultNote").hidden=false}
+function boot(){
+  document.querySelectorAll(".panel[data-i] form").forEach(f=>f.addEventListener("submit",async e=>{e.preventDefault();
+    const p=f.closest(".panel"),i=+p.dataset.i,inp=f.querySelector("input"),m=p.querySelector(".msg"),v=norm(inp.value);
+    if(!v){m.className="msg err";m.textContent="> champ vide";return}
+    if(hex(await sha(`voss:${SITE}:${i}:${v}`))===H[i]){solved[i]=v;save();render()}else{m.className="msg err";m.textContent="> accès refusé · tentative journalisée";inp.select()}}));
+  document.getElementById("reset").onclick=()=>{solved={};save();location.reload()};
+  render()}
+
+const M={M:"--",I:"..",R:".-.",O:"---"},WORD="MIROIR",seq=[];
+WORD.split("").forEach((l,li)=>{M[l].split("").forEach((s,si)=>{seq.push([1,s==="."?1:3]);if(si<M[l].length-1)seq.push([0,1])});if(li<WORD.length-1)seq.push([0,3])});
+const tape=document.getElementById("tape");
+function drawTape(){const w=tape.clientWidth||600;tape.width=w;const c=tape.getContext("2d");const total=seq.reduce((a,s)=>a+s[1],0)+4,u=w/total;let x=u*2;
+  c.clearRect(0,0,w,70);c.strokeStyle=css("--line");c.beginPath();c.moveTo(0,35);c.lineTo(w,35);c.stroke();
+  c.fillStyle=css("--c");c.shadowColor=css("--c");c.shadowBlur=8;seq.forEach(([on,d])=>{if(on)c.fillRect(x,22,d*u-1,26);x+=d*u})}
+drawTape();addEventListener("resize",drawTape);
+const lamp=document.getElementById("lamp");let playing=false;
+document.getElementById("play").onclick=async()=>{if(playing)return;playing=true;let ac=null;try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}
+  for(const [on,d] of seq){let o;if(on){lamp.classList.add("on");if(ac){o=ac.createOscillator();const g=ac.createGain();g.gain.value=.1;o.frequency.value=640;o.connect(g).connect(ac.destination);o.start()}}
+    await new Promise(r=>setTimeout(r,d*170));lamp.classList.remove("on");if(o)o.stop()}if(ac)ac.close();playing=false};
+boot();
+</script>
+
+</body></html>
